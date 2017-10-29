@@ -24,6 +24,7 @@ public class GhostActivity extends AppCompatActivity {
     private boolean userTurn = false;
     private Random random = new Random();
     private final int MIN_WORD_LENGTH = 4;
+    private String chosenWord = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,16 +90,17 @@ public class GhostActivity extends AppCompatActivity {
 
         if (userText.length() >= MIN_WORD_LENGTH && dictionary.isWord(userText)) {
             // Computer Wins
-            label.setText("Computer Wins");
+            label.setText("Computer WON, You entered a valid word!");
         } else {
             String longerText = dictionary.getAnyWordStartingWith(userText);
             if (longerText == null) {
                 // User bluffed
                 // Computer Wins
-                label.setText("Computer Wins");
+                label.setText("Computer WON, Word: " + chosenWord);
             } else {
                 String newText = userText + longerText.charAt(userText.length());
                 text.setText(newText);
+                chosenWord = longerText;
                 if (dictionary.isWord(newText)) {
                     label.setText("You WON!");
                 } else {
@@ -126,11 +128,27 @@ public class GhostActivity extends AppCompatActivity {
             text.setText(word);
             // Call computerTurn
             computerTurn();
-            if (dictionary.isWord(word)) {
-                TextView label = (TextView) findViewById(R.id.gameStatus);
-                label.setText("Game over");
-            }
         }
         return true;
+    }
+
+    public void challenge(View view) {
+        TextView text = (TextView) findViewById(R.id.ghostText);
+        String word = text.getText().toString().toLowerCase();
+        TextView label = (TextView) findViewById(R.id.gameStatus);
+        if (word.length() >= MIN_WORD_LENGTH) {
+            if (dictionary.isWord(word)) {
+                label.setText("Game over, You WON");
+            } else {
+                // check if word can be formed
+                if (dictionary.getAnyWordStartingWith(word) != null) {
+                    label.setText("Game over, Computer WON");
+                } else {
+                    label.setText("Game over, You WON");
+                }
+            }
+        } else {
+            label.setText("Word length is less than " + MIN_WORD_LENGTH);
+        }
     }
 }
